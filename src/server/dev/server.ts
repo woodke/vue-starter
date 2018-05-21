@@ -12,9 +12,9 @@ export default (app: Express.Application, cb: any): void => {
   let bundle: string;
   let template: string;
 
-  clientConfig.entry.app = ['webpack-hot-middleware/client', clientConfig.entry.app];
+  clientConfig.entry.server = ['webpack-hot-middleware/client', clientConfig.entry.app];
   clientConfig.output.filename = '[name].js';
-  clientConfig.plugins.push(new webpack.HotModuleReplacementPlugin(), new webpack.NoEmitOnErrorsPlugin());
+  clientConfig.plugins.push(new webpack.HotModuleReplacementPlugin());
   clientConfig.mode = 'development';
 
   const clientCompiler = webpack(clientConfig);

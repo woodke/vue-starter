@@ -2,19 +2,24 @@ const path = require('path');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const nodeExternals = require('webpack-node-externals');
 const baseConfig = require('./webpack.base.config');
 
 const serverConfig = merge(baseConfig, {
   target:    'node',
-  entry:     {
-    'server': './src/server/index',
-  },
+  entry:     [
+    './src/server/index',
+  ],
   output:    {
     path:          path.join(__dirname, '..', 'dist', 'server'),
     filename:      'server.js',
     libraryTarget: 'commonjs',
   },
-  externals: Object.keys(require('../package.json').dependencies),
+  externals: [
+    nodeExternals({
+                    whitelist: ['webpack/hot/poll?1000'],
+                  }),
+  ],
   plugins:   [
     new webpack.DefinePlugin({ CLIENT: false, SERVER: true, nodeRequire: 'function(module){return require(module);}' }),
     new CopyWebpackPlugin([
@@ -34,5 +39,11 @@ const serverConfig = merge(baseConfig, {
   },
 
 });
+
+if (process.env.NODE_ENV === 'development') {
+  serverConfig.watch = true;
+  serverConfig.entry.unshift('webpack/hot/poll?1000');
+  serverConfig.plugins.unshift(new webpack.HotModuleReplacementPlugin());
+}
 
 module.exports = serverConfig;
